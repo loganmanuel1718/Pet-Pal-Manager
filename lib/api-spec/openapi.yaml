@@ -1,22 +1,47 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PawKeeper - Pet Care Management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: pets
+    description: Pet profile operations
+  - name: feeding
+    description: Feeding schedule operations
+  - name: medications
+    description: Medication reminder operations
+  - name: walks
+    description: Walk and exercise tracking
+  - name: grooming
+    description: Grooming schedule operations
+  - name: vet
+    description: Vet appointment operations
+  - name: vaccinations
+    description: Vaccination record operations
+  - name: notes
+    description: Behavior and health notes
+  - name: weight
+    description: Weight and health tracking
+  - name: supplies
+    description: Pet supplies tracking
+  - name: photos
+    description: Photo timeline
+  - name: checklists
+    description: Daily checklist operations
+  - name: dashboard
+    description: Dashboard summary operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +49,1153 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Pets
+  /pets:
+    get:
+      operationId: listPets
+      tags: [pets]
+      summary: List all pets
+      responses:
+        "200":
+          description: List of pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+    post:
+      operationId: createPet
+      tags: [pets]
+      summary: Create a pet profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetBody"
+      responses:
+        "201":
+          description: Created pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+
+  /pets/{petId}:
+    get:
+      operationId: getPet
+      tags: [pets]
+      summary: Get pet by ID
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pet profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+    put:
+      operationId: updatePet
+      tags: [pets]
+      summary: Update pet profile
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePetBody"
+      responses:
+        "200":
+          description: Updated pet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+    delete:
+      operationId: deletePet
+      tags: [pets]
+      summary: Delete pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Feeding
+  /pets/{petId}/feeding:
+    get:
+      operationId: listFeedingSchedules
+      tags: [feeding]
+      summary: List feeding schedules for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of feeding schedules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedingSchedule"
+    post:
+      operationId: createFeedingSchedule
+      tags: [feeding]
+      summary: Create a feeding schedule
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeedingScheduleBody"
+      responses:
+        "201":
+          description: Created feeding schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedingSchedule"
+
+  /pets/{petId}/feeding/{scheduleId}:
+    put:
+      operationId: updateFeedingSchedule
+      tags: [feeding]
+      summary: Update a feeding schedule
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeedingScheduleBody"
+      responses:
+        "200":
+          description: Updated feeding schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedingSchedule"
+    delete:
+      operationId: deleteFeedingSchedule
+      tags: [feeding]
+      summary: Delete a feeding schedule
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  /pets/{petId}/feeding/{scheduleId}/complete:
+    post:
+      operationId: completeFeedingSchedule
+      tags: [feeding]
+      summary: Mark a feeding as completed for today
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedingSchedule"
+
+  # Medications
+  /pets/{petId}/medications:
+    get:
+      operationId: listMedications
+      tags: [medications]
+      summary: List medications for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of medications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medication"
+    post:
+      operationId: createMedication
+      tags: [medications]
+      summary: Create a medication reminder
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMedicationBody"
+      responses:
+        "201":
+          description: Created medication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+
+  /pets/{petId}/medications/{medicationId}:
+    put:
+      operationId: updateMedication
+      tags: [medications]
+      summary: Update a medication
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: medicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMedicationBody"
+      responses:
+        "200":
+          description: Updated medication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+    delete:
+      operationId: deleteMedication
+      tags: [medications]
+      summary: Delete a medication
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: medicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  /pets/{petId}/medications/{medicationId}/given:
+    post:
+      operationId: markMedicationGiven
+      tags: [medications]
+      summary: Mark medication as given today
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: medicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Marked given
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+
+  # Walks
+  /pets/{petId}/walks:
+    get:
+      operationId: listWalks
+      tags: [walks]
+      summary: List walks for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of walks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Walk"
+    post:
+      operationId: createWalk
+      tags: [walks]
+      summary: Log a walk or exercise session
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWalkBody"
+      responses:
+        "201":
+          description: Created walk
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Walk"
+
+  /pets/{petId}/walks/{walkId}:
+    delete:
+      operationId: deleteWalk
+      tags: [walks]
+      summary: Delete a walk entry
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: walkId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Grooming
+  /pets/{petId}/grooming:
+    get:
+      operationId: listGroomingSchedules
+      tags: [grooming]
+      summary: List grooming schedule for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of grooming items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroomingSchedule"
+    post:
+      operationId: createGroomingSchedule
+      tags: [grooming]
+      summary: Create a grooming schedule item
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroomingScheduleBody"
+      responses:
+        "201":
+          description: Created grooming schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroomingSchedule"
+
+  /pets/{petId}/grooming/{groomingId}:
+    put:
+      operationId: updateGroomingSchedule
+      tags: [grooming]
+      summary: Update a grooming schedule
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: groomingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroomingScheduleBody"
+      responses:
+        "200":
+          description: Updated grooming schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroomingSchedule"
+    delete:
+      operationId: deleteGroomingSchedule
+      tags: [grooming]
+      summary: Delete a grooming schedule
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: groomingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  /pets/{petId}/grooming/{groomingId}/complete:
+    post:
+      operationId: completeGrooming
+      tags: [grooming]
+      summary: Mark grooming as completed today
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: groomingId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroomingSchedule"
+
+  # Vet Appointments
+  /pets/{petId}/vet-appointments:
+    get:
+      operationId: listVetAppointments
+      tags: [vet]
+      summary: List vet appointments for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of vet appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VetAppointment"
+    post:
+      operationId: createVetAppointment
+      tags: [vet]
+      summary: Create a vet appointment
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVetAppointmentBody"
+      responses:
+        "201":
+          description: Created vet appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VetAppointment"
+
+  /pets/{petId}/vet-appointments/{appointmentId}:
+    put:
+      operationId: updateVetAppointment
+      tags: [vet]
+      summary: Update a vet appointment
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVetAppointmentBody"
+      responses:
+        "200":
+          description: Updated vet appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VetAppointment"
+    delete:
+      operationId: deleteVetAppointment
+      tags: [vet]
+      summary: Delete a vet appointment
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Vaccinations
+  /pets/{petId}/vaccinations:
+    get:
+      operationId: listVaccinations
+      tags: [vaccinations]
+      summary: List vaccinations for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of vaccinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vaccination"
+    post:
+      operationId: createVaccination
+      tags: [vaccinations]
+      summary: Create a vaccination record
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVaccinationBody"
+      responses:
+        "201":
+          description: Created vaccination
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vaccination"
+
+  /pets/{petId}/vaccinations/{vaccinationId}:
+    put:
+      operationId: updateVaccination
+      tags: [vaccinations]
+      summary: Update a vaccination record
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: vaccinationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVaccinationBody"
+      responses:
+        "200":
+          description: Updated vaccination
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vaccination"
+    delete:
+      operationId: deleteVaccination
+      tags: [vaccinations]
+      summary: Delete a vaccination record
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: vaccinationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Notes / Behavior Log
+  /pets/{petId}/notes:
+    get:
+      operationId: listNotes
+      tags: [notes]
+      summary: List behavior and health notes for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create a note
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteBody"
+      responses:
+        "201":
+          description: Created note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /pets/{petId}/notes/{noteId}:
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: noteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Weight Tracking
+  /pets/{petId}/weight:
+    get:
+      operationId: listWeightEntries
+      tags: [weight]
+      summary: List weight entries for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of weight entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeightEntry"
+    post:
+      operationId: createWeightEntry
+      tags: [weight]
+      summary: Log a weight entry
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWeightEntryBody"
+      responses:
+        "201":
+          description: Created weight entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeightEntry"
+
+  /pets/{petId}/weight/{entryId}:
+    delete:
+      operationId: deleteWeightEntry
+      tags: [weight]
+      summary: Delete a weight entry
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Supplies
+  /pets/{petId}/supplies:
+    get:
+      operationId: listSupplies
+      tags: [supplies]
+      summary: List supplies for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of supplies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Supply"
+    post:
+      operationId: createSupply
+      tags: [supplies]
+      summary: Create a supply item
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupplyBody"
+      responses:
+        "201":
+          description: Created supply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supply"
+
+  /pets/{petId}/supplies/{supplyId}:
+    put:
+      operationId: updateSupply
+      tags: [supplies]
+      summary: Update a supply item
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: supplyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupplyBody"
+      responses:
+        "200":
+          description: Updated supply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Supply"
+    delete:
+      operationId: deleteSupply
+      tags: [supplies]
+      summary: Delete a supply item
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: supplyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Photos
+  /pets/{petId}/photos:
+    get:
+      operationId: listPhotos
+      tags: [photos]
+      summary: List photos for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of photos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Photo"
+    post:
+      operationId: createPhoto
+      tags: [photos]
+      summary: Add a photo to the timeline
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePhotoBody"
+      responses:
+        "201":
+          description: Created photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
+
+  /pets/{petId}/photos/{photoId}:
+    delete:
+      operationId: deletePhoto
+      tags: [photos]
+      summary: Delete a photo
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeletedResponse"
+
+  # Daily Checklist
+  /pets/{petId}/checklist/today:
+    get:
+      operationId: getTodayChecklist
+      tags: [checklists]
+      summary: Get today's checklist for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Today's checklist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyChecklist"
+
+  # Dashboard Summary (wow endpoint)
+  /pets/{petId}/dashboard:
+    get:
+      operationId: getPetDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetDashboard"
+
+  # Insights (wow endpoint)
+  /pets/{petId}/insights:
+    get:
+      operationId: getPetInsights
+      tags: [dashboard]
+      summary: Get routine insights for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pet insights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PetInsights"
+
+  # Emergency Info (wow endpoint)
+  /pets/{petId}/emergency:
+    get:
+      operationId: getPetEmergencyInfo
+      tags: [dashboard]
+      summary: Get emergency info for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Emergency info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyInfo"
+
+  # Upcoming Events (wow endpoint)
+  /pets/{petId}/upcoming:
+    get:
+      operationId: getUpcomingEvents
+      tags: [dashboard]
+      summary: Get upcoming events for a pet (vet appointments, vaccination due dates, grooming)
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Upcoming events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UpcomingEvent"
+
+  # Low stock supplies (wow endpoint)
+  /pets/{petId}/supplies/low-stock:
+    get:
+      operationId: getLowStockSupplies
+      tags: [supplies]
+      summary: Get low-stock supplies for a pet
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Low stock supplies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Supply"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +1206,817 @@ components:
       required:
         - status
 
+    DeletedResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        species:
+          type: string
+        breed:
+          type: string
+          nullable: true
+        age:
+          type: number
+          nullable: true
+        weight:
+          type: number
+          nullable: true
+        sex:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          nullable: true
+        medicalNotes:
+          type: string
+          nullable: true
+        allergies:
+          type: string
+          nullable: true
+        vetName:
+          type: string
+          nullable: true
+        vetPhone:
+          type: string
+          nullable: true
+        vetAddress:
+          type: string
+          nullable: true
+        emergencyVetName:
+          type: string
+          nullable: true
+        emergencyVetPhone:
+          type: string
+          nullable: true
+        insuranceProvider:
+          type: string
+          nullable: true
+        insurancePolicyNumber:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - species
+        - createdAt
+        - updatedAt
+
+    CreatePetBody:
+      type: object
+      properties:
+        name:
+          type: string
+        species:
+          type: string
+        breed:
+          type: string
+          nullable: true
+        age:
+          type: number
+          nullable: true
+        weight:
+          type: number
+          nullable: true
+        sex:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          nullable: true
+        medicalNotes:
+          type: string
+          nullable: true
+        allergies:
+          type: string
+          nullable: true
+        vetName:
+          type: string
+          nullable: true
+        vetPhone:
+          type: string
+          nullable: true
+        vetAddress:
+          type: string
+          nullable: true
+        emergencyVetName:
+          type: string
+          nullable: true
+        emergencyVetPhone:
+          type: string
+          nullable: true
+        insuranceProvider:
+          type: string
+          nullable: true
+        insurancePolicyNumber:
+          type: string
+          nullable: true
+      required:
+        - name
+        - species
+
+    FeedingSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        mealName:
+          type: string
+        mealTime:
+          type: string
+        foodType:
+          type: string
+          nullable: true
+        portionSize:
+          type: string
+          nullable: true
+        instructions:
+          type: string
+          nullable: true
+        completedToday:
+          type: boolean
+        lastCompletedAt:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - mealName
+        - mealTime
+        - completedToday
+        - createdAt
+
+    CreateFeedingScheduleBody:
+      type: object
+      properties:
+        mealName:
+          type: string
+        mealTime:
+          type: string
+        foodType:
+          type: string
+          nullable: true
+        portionSize:
+          type: string
+          nullable: true
+        instructions:
+          type: string
+          nullable: true
+      required:
+        - mealName
+        - mealTime
+
+    Medication:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        name:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        timeOfDay:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        refillDate:
+          type: string
+          nullable: true
+        givenToday:
+          type: boolean
+        lastGivenAt:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - name
+        - dosage
+        - frequency
+        - givenToday
+        - active
+        - createdAt
+
+    CreateMedicationBody:
+      type: object
+      properties:
+        name:
+          type: string
+        dosage:
+          type: string
+        frequency:
+          type: string
+        timeOfDay:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        refillDate:
+          type: string
+          nullable: true
+        active:
+          type: boolean
+      required:
+        - name
+        - dosage
+        - frequency
+
+    Walk:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        type:
+          type: string
+        startedAt:
+          type: string
+        durationMinutes:
+          type: integer
+          nullable: true
+        distanceKm:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - type
+        - startedAt
+        - createdAt
+
+    CreateWalkBody:
+      type: object
+      properties:
+        type:
+          type: string
+        startedAt:
+          type: string
+        durationMinutes:
+          type: integer
+          nullable: true
+        distanceKm:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - type
+        - startedAt
+
+    GroomingSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        type:
+          type: string
+        frequencyDays:
+          type: integer
+        lastDoneAt:
+          type: string
+          nullable: true
+        nextDueAt:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        completedToday:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - type
+        - frequencyDays
+        - completedToday
+        - createdAt
+
+    CreateGroomingScheduleBody:
+      type: object
+      properties:
+        type:
+          type: string
+        frequencyDays:
+          type: integer
+        lastDoneAt:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - type
+        - frequencyDays
+
+    VetAppointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        title:
+          type: string
+        appointmentType:
+          type: string
+        scheduledAt:
+          type: string
+        vetName:
+          type: string
+          nullable: true
+        vetClinic:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - title
+        - appointmentType
+        - scheduledAt
+        - completed
+        - createdAt
+
+    CreateVetAppointmentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        appointmentType:
+          type: string
+        scheduledAt:
+          type: string
+        vetName:
+          type: string
+          nullable: true
+        vetClinic:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        completed:
+          type: boolean
+      required:
+        - title
+        - appointmentType
+        - scheduledAt
+
+    Vaccination:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        vaccineName:
+          type: string
+        dateGiven:
+          type: string
+        nextDueDate:
+          type: string
+          nullable: true
+        administeredBy:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        documentUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - vaccineName
+        - dateGiven
+        - createdAt
+
+    CreateVaccinationBody:
+      type: object
+      properties:
+        vaccineName:
+          type: string
+        dateGiven:
+          type: string
+        nextDueDate:
+          type: string
+          nullable: true
+        administeredBy:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        documentUrl:
+          type: string
+          nullable: true
+      required:
+        - vaccineName
+        - dateGiven
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        category:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - category
+        - content
+        - createdAt
+
+    CreateNoteBody:
+      type: object
+      properties:
+        category:
+          type: string
+        content:
+          type: string
+        mood:
+          type: string
+          nullable: true
+      required:
+        - category
+        - content
+
+    WeightEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        weightKg:
+          type: number
+        unit:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        recordedAt:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - weightKg
+        - unit
+        - recordedAt
+        - createdAt
+
+    CreateWeightEntryBody:
+      type: object
+      properties:
+        weightKg:
+          type: number
+        unit:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        recordedAt:
+          type: string
+      required:
+        - weightKg
+        - unit
+        - recordedAt
+
+    Supply:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        currentStock:
+          type: number
+        unit:
+          type: string
+        lowStockThreshold:
+          type: number
+        isLowStock:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - petId
+        - name
+        - category
+        - currentStock
+        - unit
+        - lowStockThreshold
+        - isLowStock
+        - createdAt
+        - updatedAt
+
+    CreateSupplyBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        currentStock:
+          type: number
+        unit:
+          type: string
+        lowStockThreshold:
+          type: number
+        notes:
+          type: string
+          nullable: true
+      required:
+        - name
+        - category
+        - currentStock
+        - unit
+        - lowStockThreshold
+
+    Photo:
+      type: object
+      properties:
+        id:
+          type: integer
+        petId:
+          type: integer
+        photoUrl:
+          type: string
+        caption:
+          type: string
+          nullable: true
+        milestone:
+          type: string
+          nullable: true
+        takenAt:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - petId
+        - photoUrl
+        - takenAt
+        - createdAt
+
+    CreatePhotoBody:
+      type: object
+      properties:
+        photoUrl:
+          type: string
+        caption:
+          type: string
+          nullable: true
+        milestone:
+          type: string
+          nullable: true
+        takenAt:
+          type: string
+      required:
+        - photoUrl
+        - takenAt
+
+    DailyChecklist:
+      type: object
+      properties:
+        date:
+          type: string
+        petId:
+          type: integer
+        feedingItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedingSchedule"
+        medicationItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        groomingItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroomingSchedule"
+        walksToday:
+          type: array
+          items:
+            $ref: "#/components/schemas/Walk"
+        totalTasksCompleted:
+          type: integer
+        totalTasks:
+          type: integer
+      required:
+        - date
+        - petId
+        - feedingItems
+        - medicationItems
+        - groomingItems
+        - walksToday
+        - totalTasksCompleted
+        - totalTasks
+
+    PetDashboard:
+      type: object
+      properties:
+        pet:
+          $ref: "#/components/schemas/Pet"
+        todayChecklist:
+          $ref: "#/components/schemas/DailyChecklist"
+        lowStockSupplies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Supply"
+        upcomingEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingEvent"
+        recentNotes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Note"
+        recentWalks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Walk"
+      required:
+        - pet
+        - todayChecklist
+        - lowStockSupplies
+        - upcomingEvents
+        - recentNotes
+        - recentWalks
+
+    PetInsights:
+      type: object
+      properties:
+        petId:
+          type: integer
+        period:
+          type: string
+        missedMedicationsThisMonth:
+          type: integer
+        averageWalksPerWeek:
+          type: number
+        totalWalkDistanceKm:
+          type: number
+        feedingCompletionRate:
+          type: number
+        groomingCompletionRate:
+          type: number
+        weightTrend:
+          type: string
+          nullable: true
+        lastVetVisit:
+          type: string
+          nullable: true
+        nextVetVisit:
+          type: string
+          nullable: true
+      required:
+        - petId
+        - period
+        - missedMedicationsThisMonth
+        - averageWalksPerWeek
+        - totalWalkDistanceKm
+        - feedingCompletionRate
+        - groomingCompletionRate
+
+    EmergencyInfo:
+      type: object
+      properties:
+        pet:
+          $ref: "#/components/schemas/Pet"
+        activeMedications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medication"
+        allergies:
+          type: string
+          nullable: true
+        vetName:
+          type: string
+          nullable: true
+        vetPhone:
+          type: string
+          nullable: true
+        emergencyVetName:
+          type: string
+          nullable: true
+        emergencyVetPhone:
+          type: string
+          nullable: true
+        insuranceProvider:
+          type: string
+          nullable: true
+        insurancePolicyNumber:
+          type: string
+          nullable: true
+        vaccinations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vaccination"
+      required:
+        - pet
+        - activeMedications
+        - vaccinations
+
+    UpcomingEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        dueAt:
+          type: string
+        daysUntil:
+          type: integer
+        urgent:
+          type: boolean
+      required:
+        - id
+        - type
+        - title
+        - dueAt
+        - daysUntil
+        - urgent
